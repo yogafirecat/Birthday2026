@@ -120,8 +120,8 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
   <p class="keys">パソコン: 矢印キー / WASD で移動、Space か Enter で話す・調べる。まず巫女さん、お賽銭箱、本殿を調べてみてね。音が出ます(右上の♪ボタンでオン/オフ)。</p>
 
   <div class="fields">
-    <label class="field">お祝いする人の名前(御朱印に入ります)
-      <input id="who" autocorrect="off" autocapitalize="off" spellcheck="false" type="text" value="ヨガ大明神" maxlength="16" autocomplete="off">
+    <label class="field">あなたのお名前(御朱印に入ります)
+      <input id="who" autocorrect="off" autocapitalize="off" spellcheck="false" type="text" placeholder="あなたのお名前" maxlength="16" autocomplete="off">
     </label>
     <label class="field">御朱印に入れる日付
       <input id="when" autocorrect="off" autocapitalize="off" spellcheck="false" type="text" placeholder="空欄なら今日の日付(例 令和8年11月23日)" maxlength="14" autocomplete="off">
@@ -172,7 +172,7 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
   var cx = cv.getContext('2d');
   cx.scale(2, 2); cx.imageSmoothingEnabled = false;
   function $(id) { return document.getElementById(id); }
-  function nm() { return ($('who').value || '').trim() || 'ヨガ大明神'; }
+  function nm() { return ($('who').value || '').trim() || '参拝者'; }
   function R(x, y, w, h, c) { cx.fillStyle = c; cx.fillRect(x, y, w, h); }
   function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
 
