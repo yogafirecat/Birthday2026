@@ -65,6 +65,8 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
 #msg { display: flex; gap: 12px; align-items: center; }
 #msgFace { width: 84px; height: 84px; object-fit: contain; flex: none; }
 .msgBody { flex: 1; min-width: 0; }
+#msg, .keys, .pad, .abtn, #game, header, .field > :not(input) { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.btn, #msg, #snd, #emaModal button, #lockModal button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 #snd{position:fixed;z-index:30;top:calc(env(safe-area-inset-top,0px) + 8px);right:max(10px,env(safe-area-inset-right,0px));font-family:var(--pixel);font-size:14px;color:var(--ink);background:var(--panel);border:3px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
 #snd[aria-pressed=false]{color:var(--muted);text-decoration:line-through}
 #snd:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
@@ -118,11 +120,11 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
   <p class="keys">パソコン: 矢印キー / WASD で移動、Space か Enter で話す・調べる。まず巫女さん、お賽銭箱、本殿を調べてみてね。音が出ます(右上の♪ボタンでオン/オフ)。</p>
 
   <div class="fields">
-    <label class="field">お祝いする人の名前
-      <input id="who" type="text" value="ヨガ大名人" maxlength="16" autocomplete="off">
+    <label class="field">お祝いする人の名前(御朱印に入ります)
+      <input id="who" autocorrect="off" autocapitalize="off" spellcheck="false" type="text" value="ヨガ大名人" maxlength="16" autocomplete="off">
     </label>
-    <label class="field">お祝いの日付(御朱印に入ります)
-      <input id="when" type="text" placeholder="空欄なら今日の日付(例 令和8年11月23日)" maxlength="14" autocomplete="off">
+    <label class="field">御朱印に入れる日付
+      <input id="when" autocorrect="off" autocapitalize="off" spellcheck="false" type="text" placeholder="空欄なら今日の日付(例 令和8年11月23日)" maxlength="14" autocomplete="off">
     </label>
   </div>
 </div>
@@ -142,8 +144,8 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
     <p class="hint" id="emaNote"></p>
     <div id="emaList"></div>
     <div class="emaForm" id="emaForm">
-      <input id="emaName" maxlength="16" placeholder="お名前(空欄なら名無しさん)" autocomplete="off">
-      <textarea id="emaText" maxlength="120" rows="3" placeholder="ヨガさんへのメッセージ(120字まで)"></textarea>
+      <input id="emaName" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="16" placeholder="お名前(空欄なら名無しさん)" autocomplete="off">
+      <textarea id="emaText" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="120" rows="3" placeholder="ヨガさんへのメッセージ(120字まで)"></textarea>
       <p class="hint" id="emaWarn" hidden>この共有設定では書き込めません(閲覧のみ)。</p>
       <div class="row"><button id="emaClose" type="button">閉じる</button><button id="emaSend" type="button">絵馬を奉納する</button></div>
     </div>
@@ -152,7 +154,7 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
 
 <div id="lockModal" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="lockTitle">
-    <div style="font-family:var(--brush);font-size:22px;color:var(--gold);text-align:center"><span id="lockTitle">文箱の鍵</span></div>
+    <div style="font-family:var(--brush);font-size:22px;color:var(--gold);text-align:center"><span id="lockTitle">合言葉</span></div>
     <p class="hint">合言葉を入れてください。</p>
     <div class="emaForm">
       <input id="lockPw" type="password" maxlength="24" placeholder="合言葉" autocomplete="off" autocapitalize="off" spellcheck="false">
@@ -342,12 +344,6 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
     R(x0 + 22, y0 + 14, 20, 22, '#6b3022'); R(x0 + 31, y0 + 22, 2, 6, '#e8b94a');
     R(x0 + 8, y0 + 12, 48, 3, '#f5efdc');
     R(x0 + 8, y0 + 36, 48, 6, '#a79f8c'); R(x0 + 4, y0 + 42, 56, 6, '#948e80');
-  }
-  function drawFumi(t) {
-    var x0 = 10 * T, y0 = 2, g = Math.round(Math.sin(t / 500));
-    R(x0 + 2, y0 + 7, 12, 8, '#7a4f2b'); R(x0 + 2, y0 + 5, 12, 3, '#9b6a3a'); R(x0 + 2, y0 + 5, 12, 1, '#c8a15a');
-    R(x0 + 6, y0 + 7, 4, 1, '#d8402a'); R(x0 + 7, y0 + 8, 2, 4, '#e8b94a'); R(x0 + 3, y0 + 14, 10, 1, '#4a2f18');
-    R(x0 + 7, y0 + 1 + g, 2, 2, '#f7d46a');
   }
   function drawSaisen() {
     var x0 = 144, y0 = 80;
@@ -549,12 +545,11 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
       [96, 'nobori', 6 * T + 8, 96], [96, 'nobori', 13 * T + 8, 96], [128, 'temizuya', 80, 128], [176, 'vend', 16 * T + 8, 176],
       [128, 'cake', 14 * T + 8, 8 * T], [129, 'miko', 13 * T + 8, 8 * T + 1 + bob], [176, 'cat0', 6 * T + 8, 11 * T - (Math.sin(t / 450) > 0.3 ? 1 : 0)], [100, 'pond', 72, 13 * T],
       [208, potKey(), 12 * T + 8, 13 * T - 1], [Math.round(player.vy) + T + 1, pk.k, Math.round(player.vx) + 8, Math.round(player.vy) + T + 1, pk.flip],
-      [0, 'torii', 160, 13 * T], [16, '_fumi', 0, 0]
+      [0, 'torii', 160, 13 * T]
     ];
     DECOR.forEach(function (d) { list.push([(d[2] + 1) * T, d[0], d[1] * T + 8, (d[2] + 1) * T - 1]); });
     list.sort(function (a, b) { return a[0] - b[0]; });
     list.forEach(function (o) {
-      if (o[1] === '_fumi') { drawFumi(t); return; }
       if (o[1] === 'honden' && player.y === 0) { cx.globalAlpha = 0.45; spr(o[1], o[2], o[3], o[4]); cx.globalAlpha = 1; return; }
       spr(o[1], o[2], o[3], o[4]);
     });
@@ -731,10 +726,10 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
   function emaRender() {
     var rd = EMA.mode === 'read', box = $('emaList'), list = emaMsgs(), canPost = EMA.db ? (EMA.canWrite && !!EMA.uid) : true;
     box.textContent = '';
-    $('emaTitle').textContent = rd ? '文箱 ― ヨガさんへの絵馬' : '絵馬掛け所 ― ヨガさんへ';
+    $('emaTitle').textContent = rd ? '奉納された絵馬 ― ヨガさんへ' : '絵馬掛け所 ― ヨガさんへ';
     $('emaForm').hidden = rd; box.hidden = !rd;
     if (rd) $('emaNote').textContent = EMA.err || (EMA.db ? (EMA.loaded ? list.length + ' 枚の絵馬が納められています' : '読み込み中…') : 'この画面では保存されません(公開ページで書き込めます)');
-    else $('emaNote').textContent = EMA.err || (EMA.db ? (EMA.sent ? '絵馬を奉納しました。ありがとう! メッセージは本殿の裏の文箱に納められます。' : '書いた絵馬は、本殿の裏の文箱に納められます。') : 'この画面では保存されません(公開ページで書き込めます)');
+    else $('emaNote').textContent = EMA.err || (EMA.db ? (EMA.sent ? '絵馬を奉納しました。ありがとう! メッセージはヨガさんのもとへ届きます。' : '書いた絵馬は、ヨガさんのもとへ届けられます。') : 'この画面では保存されません(公開ページで書き込めます)');
     if (rd) {
       list.forEach(function (m) {
         var d = document.createElement('div'), b = document.createElement('b'), t = document.createElement('p');
@@ -780,7 +775,7 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
   function tryLock() {
     if (normPw($('lockPw').value) === 'YFC1123') {
       EMA.unlocked = true; $('lockModal').hidden = true; SND.bell();
-      setTimeout(function () { say('', ['かちり。鍵が開いた。'], function () { openEma('read'); }); }, 200);
+      setTimeout(function () { say('', ['かちり。何かが開く音がした。'], function () { openEma('read'); }); }, 200);
     } else { $('lockMsg').textContent = '合言葉がちがうようだ…'; $('lockPw').select(); SND.miss(); }
   }
   $('lockOk').addEventListener('click', tryLock);
@@ -799,7 +794,7 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
     miko: function () {
       mikoTalks++;
       if (mikoTalks === 1) say('巫女さん', ['ようこそ、ヨガ大明神の生誕祭へ。', '本日は ' + nm() + ' さまの、ありがたいお誕生日です。', 'お賽銭箱でおみくじを、本殿で御朱印をお受けくださいね。']);
-      else say('巫女さん', [pick(['おみくじは何度でも引けます。大吉が出るまで、どうぞ。', '御朱印は本殿でお受けいただけますよ。', '境内の猫さまも、本日は特別にヨガのポーズだそうです。', '本殿の裏に、文箱があるそうですよ。開けるには合言葉が必要だとか…'])]);
+      else say('巫女さん', [pick(['おみくじは何度でも引けます。大吉が出るまで、どうぞ。', '御朱印は本殿でお受けいただけますよ。', '境内の猫さまも、本日は特別にヨガのポーズだそうです。', '本殿の裏で合言葉を唱えると、何かが起こるそうですよ…'])]);
     },
     honden: function () {
       var first = !gotGoshuin;
@@ -831,8 +826,8 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
     sign: function () { say('', ['【境内のご案内】', '巫女さんに話しかけるとお祝いのごあいさつ。お賽銭箱でおみくじ、本殿で御朱印。', 'ポテト侍は、揚げたて限定の門番です。']); },
     ema: function () { say('', ['絵馬がずらりと並んでいる。猫の肉球と桜の絵が描かれている。', '「' + nm() + ' さまの一年が、ゆるく楽しくなりますように」と書いてあった。', '空いている絵馬に、ヨガさんへのメッセージを書けそうだ。'], function () { openEma('write'); }); },
     fumi: function () {
-      if (EMA.unlocked) say('', ['文箱の鍵は開いている。', '中の絵馬のメッセージを読んでみよう。'], function () { openEma('read'); });
-      else say('', ['本殿の裏に、小さな文箱がひっそりと置かれている。', '鍵がかかっている。合言葉を入れると開きそうだ。'], openLock);
+      if (EMA.unlocked) say('', ['もう合言葉は唱えてある。', '奉納された絵馬を読んでみよう。'], function () { openEma('read'); });
+      else say('', ['本殿の裏は、ひんやりと静かだ。', 'ここで合言葉を唱えると、何かが開く気がする…'], openLock);
     },
     mon: function () { say('', ['苔むした石碑。何か彫ってあるが読めない。', 'たぶん「ヨガ」と書いてある気がする。']); },
     pond: function () { say('', ['池に釣り糸を垂らした。', 'ウキが沈んだら、Aで引き上げよう!'], startFish); },
