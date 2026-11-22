@@ -68,6 +68,19 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
 #msg, .keys, .pad, .abtn, #game, header, .field > :not(input) { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .btn, #msg, #snd, #emaModal button, #lockModal button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 #snd{position:fixed;z-index:30;top:calc(env(safe-area-inset-top,0px) + 8px);right:max(10px,env(safe-area-inset-right,0px));font-family:var(--pixel);font-size:14px;color:var(--ink);background:var(--panel);border:3px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
+#colBtn{position:fixed;z-index:30;top:calc(env(safe-area-inset-top,0px) + 8px);right:calc(max(10px,env(safe-area-inset-right,0px)) + 104px);font-family:var(--pixel);font-size:14px;color:var(--ink);background:var(--panel);border:3px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
+#colBtn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+#colModal{position:fixed;inset:0;z-index:20;background:rgba(5,5,15,.82);display:flex;align-items:center;justify-content:center;padding:12px}
+#colModal[hidden]{display:none}
+#colModal .sheet{width:min(460px,100%);align-items:stretch}
+#colModal h3{margin:6px 0 2px;font-weight:400;font-size:15px;color:var(--gold)}
+#colModal .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px}
+#colModal .cell{background:#d9b878;color:#2a1a10;border:2px solid #7a4f2b;padding:4px 6px;font-size:13px;line-height:1.4;display:flex;gap:6px;align-items:center}
+#colModal .cell img{height:26px;max-width:40px;object-fit:contain;image-rendering:pixelated}
+#colModal .cell.no{background:#3a3548;color:#8d87a0;border-color:#4a4560}
+#colModal .cell.no img{filter:brightness(0);opacity:.4}
+#colModal button.close{font-family:var(--pixel);font-size:16px;color:var(--ink);background:var(--shu);border:3px solid #ff8a70;padding:8px 28px;cursor:pointer;align-self:center}
+
 #snd[aria-pressed=false]{color:var(--muted);text-decoration:line-through}
 #snd:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 #imgBox{position:relative;display:inline-block;line-height:0;max-width:100%}
@@ -130,6 +143,14 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
   </div>
 </div>
 
+<button id="colBtn" type="button">所持品</button>
+<div id="colModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="所持品">
+    <div style="font-family:var(--brush);font-size:22px;color:var(--gold);text-align:center">所持品コレクション</div>
+    <div id="colBody"></div>
+    <button class="close" id="colClose" type="button">閉じる</button>
+  </div>
+</div>
 <div id="modal" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div id="modalTitle"></div>
@@ -399,7 +420,10 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
     ['fp', 4, 9], ['fw', 15, 8], ['fp2', 16, 12], ['fo2', 15, 12], ['fp', 7, 12], ['fo', 12, 10], ['plant', 6, 12],
     ['fw', 5, 5], ['fo2', 14, 5], ['fp2', 6, 8], ['fo', 13, 11], ['fo2', 6, 6]];
   var fx;
-  var fish = { state: 'none', until: 0, end: 0 }, caught = {}, WX = 75, WY = 184;
+  var DEX = { fish: {}, rank: {}, goshuin: 0 };
+  try { var _d = JSON.parse(localStorage.getItem('sumiCollect') || 'null'); if (_d && _d.fish) DEX = { fish: _d.fish || {}, rank: _d.rank || {}, goshuin: _d.goshuin || 0 }; } catch (e) {}
+  function dexSave() { try { localStorage.setItem('sumiCollect', JSON.stringify(DEX)); } catch (e) {} }
+  var fish = { state: 'none', until: 0, end: 0 }, caught = (function () { var o = {}; Object.keys(DEX.fish).forEach(function (k) { o[k] = true; }); return o; })(), WX = 75, WY = 184;
   var FISH = [
     { k: 'fish0', name: '金魚', w: 4, cm: [5, 12], t: 'ひらひら泳ぐ、赤い金魚。' },
     { k: 'fish1', name: '錦鯉', w: 3, cm: [25, 60], t: '池の主のような風格。' },
@@ -477,7 +501,7 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
     fish.state = 'none';
     var tot = FISH.reduce(function (s, f) { return s + f.w; }, 0), r = Math.random() * tot, f = FISH[0];
     for (var i = 0; i < FISH.length; i++) { r -= FISH[i].w; if (r <= 0) { f = FISH[i]; break; } }
-    var cm = f.cm[0] + Math.floor(Math.random() * (f.cm[1] - f.cm[0] + 1)); caught[f.k] = true;
+    var cm = f.cm[0] + Math.floor(Math.random() * (f.cm[1] - f.cm[0] + 1)); caught[f.k] = true; (function () { var d = DEX.fish[f.k] || { n: 0, max: 0 }; d.n++; if (cm > d.max) d.max = cm; DEX.fish[f.k] = d; dexSave(); })();
     fishCard(f, cm).then(function (url) { SND.catchFish(f.rare); openModal('釣果: ' + f.name, url, f.name + ' ' + cm + 'cm'); });
   }
   /* 下側の柵は木と重なるので描画をやめた。木の手前の1マスは今までどおり通れない */
@@ -591,7 +615,7 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
   function say(who, lines, cb) {
     curWho = who; queue = lines.slice(); doneCb = cb || null; talking = true; skipBlip = true; advance(); skipBlip = false;
   }
-  $('msg').addEventListener('click', function () { if (talking && $('modal').hidden && $('emaModal').hidden && $('lockModal').hidden) advance(); });
+  $('msg').addEventListener('click', function () { if (talking && $('modal').hidden && $('emaModal').hidden && $('lockModal').hidden && $('colModal').hidden) advance(); });
 
   /* ---------- result cards ---------- */
   function loadFont(spec, text) {
@@ -803,6 +827,31 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
   $('lockClose').addEventListener('click', closeLock);
   $('lockPw').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); tryLock(); } });
   $('lockModal').addEventListener('click', function (e) { if (e.target === $('lockModal')) closeLock(); });
+  /* ---------- 所持品コレクション ---------- */
+  function colRender() {
+    var b = $('colBody'); b.innerHTML = '';
+    function h(t) { var e = document.createElement('h3'); e.textContent = t; b.appendChild(e); }
+    function grid() { var g = document.createElement('div'); g.className = 'grid'; b.appendChild(g); return g; }
+    function cell(g, text, yes, src) {
+      var c = document.createElement('div'); c.className = 'cell' + (yes ? '' : ' no');
+      if (src) { var im = document.createElement('img'); im.alt = ''; im.src = src; c.appendChild(im); }
+      var t = document.createElement('span'); t.textContent = text; c.appendChild(t); g.appendChild(c);
+    }
+    h('魚図鑑 ' + Object.keys(DEX.fish).length + '/' + FISH.length);
+    var g1 = grid();
+    FISH.forEach(function (f) { var d = DEX.fish[f.k]; cell(g1, d ? f.name + ' ×' + d.n + '(最大' + d.max + 'cm)' : '？？？', !!d, (typeof SRC !== 'undefined' && SRC[f.k]) || ''); });
+    var ranks = [], seen = {}; fortunes.forEach(function (f) { if (!seen[f.rank]) { seen[f.rank] = 1; ranks.push(f.rank); } });
+    var got = ranks.filter(function (r) { return DEX.rank[r]; }).length;
+    h('おみくじ ' + got + '/' + ranks.length);
+    var g2 = grid(); ranks.forEach(function (r) { cell(g2, DEX.rank[r] ? r + ' ×' + DEX.rank[r] : '？？？', !!DEX.rank[r]); });
+    h('御朱印');
+    var g3 = grid(); cell(g3, DEX.goshuin ? '生誕祭の御朱印 ×' + DEX.goshuin : '？？？', !!DEX.goshuin);
+  }
+  function openCol() { colRender(); $('colModal').hidden = false; $('colClose').focus(); }
+  function closeCol() { if ($('colModal').hidden) return; SND.close(); $('colModal').hidden = true; }
+  $('colBtn').addEventListener('click', openCol);
+  $('colClose').addEventListener('click', closeCol);
+  $('colModal').addEventListener('click', function (e) { if (e.target === $('colModal')) closeCol(); });
   function closeEma() { if ($('emaModal').hidden) return; SND.close(); $('emaModal').hidden = true; }
   $('emaSend').addEventListener('click', emaSend);
   Array.prototype.forEach.call(document.querySelectorAll('.emaQuick button'), function (q) { q.addEventListener('click', function () { emaSend(q.getAttribute('data-q')); }); });
@@ -824,12 +873,12 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
         ? ['よくぞ参った、' + nm() + ' よ。', 'そなたの一年が、ゆるく楽しいものになるであろう。', '生誕祭の御朱印を授けよう!']
         : ['また来たか。御朱印を、もう一度ひらこう。'];
       say('ヨガ大明神', lines, function () {
-        makeGoshuin().then(function (r) { gotGoshuin = true; openModal('生誕祭の御朱印', r.base, nm() + ' さまへの生誕祭の御朱印'); stampSequence(r); });
+        makeGoshuin().then(function (r) { gotGoshuin = true; DEX.goshuin++; dexSave(); openModal('生誕祭の御朱印', r.base, nm() + ' さまへの生誕祭の御朱印'); stampSequence(r); });
       });
     },
     saisen: function () {
       say('', ['ちゃりん。お賽銭を入れた。', 'おみくじを引いた…!'], function () {
-        makeOmikuji().then(function (r) { SND.omikuji(/大吉/.test(r.rank)); openModal('おみくじ: ' + (r.title || r.rank), r.url, 'おみくじの結果 ' + r.rank); });
+        makeOmikuji().then(function (r) { DEX.rank[r.rank] = (DEX.rank[r.rank] || 0) + 1; dexSave(); SND.omikuji(/大吉/.test(r.rank)); openModal('おみくじ: ' + (r.title || r.rank), r.url, 'おみくじの結果 ' + r.rank); });
       });
     },
     temizuya: function () { say('', ['ひしゃくで水をすくって、手を清めた。', '心がすっきりした。']); },
@@ -860,7 +909,7 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
   function interact() {
     if (talking) { advance(); return; }
     if (fish.state !== 'none') { fishPress(); return; }
-    if (!$('modal').hidden || !$('emaModal').hidden || !$('lockModal').hidden) return;
+    if (!$('modal').hidden || !$('emaModal').hidden || !$('lockModal').hidden || !$('colModal').hidden) return;
     var d = DIRS[player.dir], o = findObj(player.x + d[0], player.y + d[1]);
     if (o && actions[o.id]) { SND.obj(o.id); actions[o.id](); }
   }
@@ -890,7 +939,7 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
   /* ---------- loop ---------- */
   var lastMove = 0;
   function tick(t) {
-    if (!talking && $('modal').hidden && $('emaModal').hidden && $('lockModal').hidden && fish.state === 'none' && held.length) {
+    if (!talking && $('modal').hidden && $('emaModal').hidden && $('lockModal').hidden && $('colModal').hidden && fish.state === 'none' && held.length) {
       if (t - lastMove > 140) {
         var dir = held[held.length - 1], d = DIRS[dir];
         player.dir = dir;
