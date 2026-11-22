@@ -86,6 +86,7 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
 .emaForm .row{display:flex;gap:8px;justify-content:flex-end}
 .emaForm button{font-family:var(--pixel);font-size:16px;color:var(--ink);background:var(--shu);border:3px solid #ff8a70;padding:8px 18px;cursor:pointer}
 .emaForm button:disabled{opacity:.5;cursor:default}
+.emaQuick button{font-size:14px!important;padding:6px 10px!important;background:var(--panel)!important;border-color:var(--line)!important}
 .emaForm :focus-visible,#emaList button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 #emaClose,#lockClose{background:var(--panel)!important;border-color:var(--line)!important}
 .sheet.shake{animation:shake .22s}
@@ -147,6 +148,8 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
       <input id="emaName" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="16" placeholder="お名前(空欄なら名無しさん)" autocomplete="off">
       <textarea id="emaText" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="120" rows="3" placeholder="ヨガさんへのメッセージ(120字まで)"></textarea>
       <p class="hint" id="emaWarn" hidden>この共有設定では書き込めません(閲覧のみ)。</p>
+      <p class="hint">書くのが面倒なときは、ワンタップで送れます。</p>
+      <div class="row emaQuick" style="flex-wrap:wrap;justify-content:flex-start"><button type="button" data-q="いいね!">いいね!</button><button type="button" data-q="おめでとう!">おめでとう!</button><button type="button" data-q="わっしょい!">わっしょい!</button><button type="button" data-q="ありがとう!">ありがとう!</button><button type="button" data-q="応援してます!">応援してます!</button></div>
       <div class="row"><button id="emaClose" type="button">閉じる</button><button id="emaSend" type="button">絵馬を奉納する</button></div>
     </div>
   </div>
@@ -628,12 +631,18 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
   }
   var fortunes = [
     { w: 1, rank: '超超大吉', title: 'ヨガ大明神 生誕祭 限定', good: true },
+    { w: 1, rank: 'スーパー大吉', title: '今日の主役はあなたです', good: true },
+    { w: 1, rank: 'ウルトラ大吉', title: '全世界がお祝いムード', good: true },
     { w: 2, rank: '大吉', title: 'わっしょいわっしょい大吉', good: true },
     { w: 2, rank: '超大吉', title: '空からケーキが降ってきた超大吉', good: true },
+    { w: 2, rank: '大大吉', title: '福がてんこ盛り', good: true },
     { w: 3, rank: '大吉', title: '', good: true },
     { w: 3, rank: '中吉', title: '', good: false },
     { w: 2, rank: '小吉', title: '', good: false },
-    { w: 2, rank: '吉', title: '', good: false }
+    { w: 2, rank: '吉', title: '', good: false },
+    { w: 2, rank: '末吉', title: 'あとから伸びるタイプ', good: false },
+    { w: 1, rank: 'ほぼ大吉', title: 'あと一歩で大吉だった', good: false },
+    { w: 1, rank: '猫吉', title: 'ねこがそばにいると運気上昇', good: false }
   ];
   var words = [
     ['今日はゆっくり息をして', 'ケーキは大きめに切ること'],
@@ -642,10 +651,21 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
     ['負けたあとの再挑戦が', 'いちばん盛り上がる夜'],
     ['コメント欄にあたたかい風', '今年もわっしょい'],
     ['ろうそくの火はそっと', '願いごとは大きく'],
-    ['ゲームは遊び、人生もまた', 'たまにセーブも大事']
+    ['ゲームは遊び、人生もまた', 'たまにセーブも大事'],
+    ['迷ったときは甘いもの', 'ひと口で気持ちが上向く'],
+    ['何気ない一言が', '誰かの宝物になる日'],
+    ['寝る前の深呼吸で', '明日の運気が整う'],
+    ['初見さんにあいさつ', 'ご縁がぐんと広がる'],
+    ['ガチャは引き際が肝心', '欲張らないが吉'],
+    ['小さな勝利を数えよう', '積み重ねが大きな力に'],
+    ['いつもの道をひとつ曲がると', '新しい発見がある'],
+    ['夜更かしはほどほどに', '朝日もごほうび'],
+    ['釣り糸を垂らして待て', '大物は急がない者のもとへ']
   ];
-  var items = ['ケーキのいちご', '新しいコントローラー', 'あたたかいお茶', 'ふかふかの座布団', 'ろうそく', 'どら焼き', 'お気に入りのマグカップ'];
-  var lcolors = [['朱色', '#d8402a'], ['藍色', '#2f4a8a'], ['若草色', '#7ab648'], ['金色', '#d9a62e'], ['桃色', '#f08fa0'], ['空色', '#6fb7d8']];
+  var items = ['ケーキのいちご', '新しいコントローラー', 'あたたかいお茶', 'ふかふかの座布団', 'ろうそく', 'どら焼き', 'お気に入りのマグカップ',
+    'まねき猫', 'ふわふわの靴下', 'ミニ門松', 'ひらがなのメモ帳', 'お団子', 'ヘッドホン', '釣り竿', 'キラキラのシール', '手ぬぐい', '栗きんとん', '小さな観葉植物'];
+  var lcolors = [['朱色', '#d8402a'], ['藍色', '#2f4a8a'], ['若草色', '#7ab648'], ['金色', '#d9a62e'], ['桃色', '#f08fa0'], ['空色', '#6fb7d8'],
+    ['紫色', '#8a5ab8'], ['橙色', '#ef8a2c'], ['白色', '#ece6d8'], ['藤色', '#a28fd0'], ['若竹色', '#5fae7a'], ['茜色', '#b5303a'], ['黄金色', '#e8c040'], ['墨色', '#3a3640']];
   function drawFortune() {
     var total = fortunes.reduce(function (s, f) { return s + f.w; }, 0), r = Math.random() * total, f = fortunes[0];
     for (var i = 0; i < fortunes.length; i++) { r -= fortunes[i].w; if (r <= 0) { f = fortunes[i]; break; } }
@@ -742,18 +762,18 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
       });
       if (!list.length && (EMA.loaded || !EMA.db)) { var e = document.createElement('p'); e.className = 'hint'; e.textContent = 'まだ絵馬は納められていません。'; box.appendChild(e); }
     }
-    $('emaWarn').hidden = canPost; $('emaSend').disabled = !canPost || EMA.busy;
+    $('emaWarn').hidden = canPost; $('emaSend').disabled = !canPost || EMA.busy; Array.prototype.forEach.call(document.querySelectorAll('.emaQuick button'), function (q) { q.disabled = !canPost || EMA.busy; });
   }
-  function emaSend() {
-    var name = $('emaName').value.trim() || '名無しさん', text = $('emaText').value.trim();
+  function emaSend(preset) {
+    var name = $('emaName').value.trim() || '名無しさん', text = (typeof preset === 'string' ? preset : $('emaText').value).trim();
     if (!text || EMA.busy) return;
     var m = { at: Date.now(), name: name.slice(0, 16), text: text.slice(0, 120) };
     try { localStorage.setItem('emaName', $('emaName').value.trim()); } catch (e) {}
-    if (!EMA.db) { EMA.local.unshift({ uid: 'me', at: m.at, name: m.name, text: m.text }); $('emaText').value = ''; EMA.sent = true; SND.coin(); emaRender(); return; }
+    if (!EMA.db) { EMA.local.unshift({ uid: 'me', at: m.at, name: m.name, text: m.text }); if (typeof preset !== 'string') $('emaText').value = ''; EMA.sent = true; SND.coin(); emaRender(); return; }
     EMA.busy = true; emaRender();
     var ref = EMA.db.doc('ema/' + EMA.uid);
     ref.get().then(function (s) { var cur = (s.exists && s.data().msgs) || []; return ref.set({ msgs: cur.concat([m]).slice(-20) }); })
-      .then(function () { $('emaText').value = ''; EMA.err = ''; EMA.sent = true; SND.coin(); })
+      .then(function () { if (typeof preset !== 'string') $('emaText').value = ''; EMA.err = ''; EMA.sent = true; SND.coin(); })
       .catch(function (e) { EMA.err = (e && e.code === 'invalid_argument') ? '書き込めませんでした(閲覧のみの権限かもしれません)' : '書き込めませんでした。もう一度どうぞ'; })
       .then(function () { EMA.busy = false; emaRender(); });
   }
@@ -785,6 +805,7 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
   $('lockModal').addEventListener('click', function (e) { if (e.target === $('lockModal')) closeLock(); });
   function closeEma() { if ($('emaModal').hidden) return; SND.close(); $('emaModal').hidden = true; }
   $('emaSend').addEventListener('click', emaSend);
+  Array.prototype.forEach.call(document.querySelectorAll('.emaQuick button'), function (q) { q.addEventListener('click', function () { emaSend(q.getAttribute('data-q')); }); });
   $('emaClose').addEventListener('click', closeEma);
   $('emaModal').addEventListener('click', function (e) { if (e.target === $('emaModal')) closeEma(); });
   emaInit();
