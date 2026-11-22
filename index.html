@@ -477,8 +477,9 @@ header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
     var cm = f.cm[0] + Math.floor(Math.random() * (f.cm[1] - f.cm[0] + 1)); caught[f.k] = true;
     fishCard(f, cm).then(function (url) { SND.catchFish(f.rare); openModal('釣果: ' + f.name, url, f.name + ' ' + cm + 'cm'); });
   }
-  for (fx = 2; fx <= 8; fx++) { DECOR.push(['fence', fx, 13]); solid[fx + ',13'] = true; }
-  for (fx = 11; fx <= 17; fx++) { DECOR.push(['fence', fx, 13]); solid[fx + ',13'] = true; }
+  /* 下側の柵は木と重なるので描画をやめた。木の手前の1マスは今までどおり通れない */
+  for (fx = 2; fx <= 8; fx++) solid[fx + ',13'] = true;
+  for (fx = 11; fx <= 17; fx++) solid[fx + ',13'] = true;
   for (fx = 2; fx <= 5; fx++) { DECOR.push(['fence', fx, 4]); solid[fx + ',4'] = true; }
   for (fx = 14; fx <= 17; fx++) { DECOR.push(['fence', fx, 4]); solid[fx + ',4'] = true; }
   [[7, 7], [5, 9], [17, 10], [2, 5], [2, 11], [17, 5], [17, 12], [8, 7], [11, 7], [3, 8], [14, 9]].forEach(function (p) { solid[p[0] + ',' + p[1]] = true; });
